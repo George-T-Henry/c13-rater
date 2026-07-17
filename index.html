@@ -1,49 +1,106 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>C13 pair validation</title>
+<title>Pair review</title>
 <style>
 :root { --bg:#f7f7f5; --card:#fff; --ink:#1a1a1a; --mut:#6b6b6b; --line:#e2e2de;
-        --pos:#eaf5ea; --neg:#fdf0ee; --acc:#2c6e49; --warn:#b3452c; --chip:#eee; }
+        --pos:#eaf5ea; --neg:#fdf0ee; --acc:#2c6e49; --warn:#b3452c; --chip:#eee;
+        --accsoft:#e7f1ea; --warnsoft:#f7e7e2; }
 @media (prefers-color-scheme: dark) {
   :root { --bg:#141414; --card:#1e1e1e; --ink:#e8e8e8; --mut:#9a9a9a; --line:#333;
-          --pos:#1c2a1c; --neg:#2c1d1a; --acc:#7dc99a; --warn:#e08a6d; --chip:#2a2a2a; } }
+          --pos:#1c2a1c; --neg:#2c1d1a; --acc:#7dc99a; --warn:#e08a6d; --chip:#2a2a2a;
+          --accsoft:#20302420; --warnsoft:#30201c; } }
 * { box-sizing:border-box; }
 body { margin:0; font:15px/1.55 system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+
+/* header */
 header { position:sticky; top:0; background:var(--card); border-bottom:1px solid var(--line);
          padding:10px 18px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; z-index:5; }
+header .brand { font-size:15px; }
 header .prog { flex:1; min-width:180px; }
-.bar { height:8px; background:var(--chip); border-radius:4px; overflow:hidden; }
-.bar > div { height:100%; background:var(--acc); width:0%; transition:width .15s; }
-.wrap { max-width:1200px; margin:14px auto; padding:0 16px 120px; }
-.meta { display:flex; gap:10px; flex-wrap:wrap; align-items:baseline; margin-bottom:8px; }
-.chip { background:var(--chip); border-radius:12px; padding:2px 10px; font-size:12.5px; color:var(--mut); }
-.concept { font-size:21px; font-weight:700; text-transform:capitalize; }
-.def { color:var(--mut); font-size:13.5px; margin:2px 0 12px; }
+.bar { height:9px; background:var(--chip); border-radius:5px; overflow:hidden; }
+.bar > div { height:100%; background:var(--acc); width:0%; transition:width .2s; }
+.count { font-variant-numeric:tabular-nums; font-size:13.5px; }
+.done { color:var(--acc); font-weight:700; }
+.pending { color:var(--mut); }
+.tick { font-size:12.5px; color:var(--mut); }
+
+/* layout */
+.wrap { max-width:960px; margin:16px auto; padding:0 16px 150px; }
+
+/* how it works */
+.steps { display:flex; flex-wrap:wrap; gap:6px 18px; margin:0 0 18px; padding:12px 16px;
+         list-style:none; counter-reset:s; background:var(--card); border:1px solid var(--line);
+         border-radius:10px; font-size:13px; color:var(--mut); }
+.steps li { counter-increment:s; position:relative; padding-left:24px; }
+.steps li::before { content:counter(s); position:absolute; left:0; top:0; width:17px; height:17px;
+         border-radius:50%; background:var(--acc); color:#fff; font-size:11px; font-weight:700;
+         display:flex; align-items:center; justify-content:center; }
+.steps b { color:var(--ink); }
+
+.pairno { font-size:12.5px; color:var(--mut); margin-bottom:8px; letter-spacing:.02em; }
+
+/* concept card */
+.conceptcard { border:1px solid var(--line); border-left:4px solid var(--acc); border-radius:10px;
+               background:var(--card); padding:14px 18px; margin-bottom:16px; }
+.eyebrow { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--mut); font-weight:700; }
+.concept { font-size:24px; font-weight:800; text-transform:capitalize; margin:3px 0 4px; }
+.def { color:var(--ink); font-size:14px; margin-bottom:12px; }
+.rule { font-size:13.5px; background:var(--accsoft); border-radius:8px; padding:9px 12px; }
+.pos-word { color:var(--acc); font-weight:700; }
+.neg-word { color:var(--warn); font-weight:700; }
+
+/* passages */
 .texts { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-@media (max-width:860px){ .texts { grid-template-columns:1fr; } }
-.panel { border:1px solid var(--line); border-radius:10px; padding:14px 16px; background:var(--card);
-         max-height:52vh; overflow-y:auto; white-space:pre-wrap; }
-.panel.pos { background:var(--pos); } .panel.neg { background:var(--neg); }
-.panel h3 { margin:0 0 8px; font-size:12.5px; letter-spacing:.06em; color:var(--mut); }
+@media (max-width:820px){ .texts { grid-template-columns:1fr; } }
+.panel { border:1px solid var(--line); border-radius:10px; padding:12px 16px 14px; background:var(--card);
+         max-height:46vh; overflow-y:auto; }
+.panel .body { white-space:pre-wrap; }
+.panel.pos { background:var(--pos); border-color:#cfe4d3; }
+.panel.neg { background:var(--neg); border-color:#eed3cc; }
+.panel h3 { margin:0 0 8px; font-size:12px; letter-spacing:.04em; font-weight:700; }
+.panel.pos h3 { color:var(--acc); }
+.panel.neg h3 { color:var(--warn); }
+
+/* judgement */
+.judgement { margin-top:18px; border:1px solid var(--line); border-radius:12px; background:var(--card);
+             padding:16px 18px; }
+.jq { font-size:16px; font-weight:700; margin-bottom:12px; }
+.choices { display:flex; gap:12px; flex-wrap:wrap; }
+.choice { flex:1 1 220px; padding:16px 18px; border-radius:10px; font-size:16px; font-weight:700;
+          cursor:pointer; text-align:left; line-height:1.3; transition:transform .05s; }
+.choice small { display:block; font-size:12.5px; font-weight:500; opacity:.85; margin-top:3px; }
+.choice:active { transform:scale(.99); }
+.choice.valid   { border:2px solid var(--acc);  background:transparent; color:var(--acc); }
+.choice.invalid { border:2px solid var(--mut);  background:transparent; color:var(--ink); }
+.choice.valid.sel   { background:var(--acc);  color:#fff; border-color:var(--acc); }
+.choice.invalid.sel { background:var(--warn); color:#fff; border-color:var(--warn); }
+
+.detail { display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line); }
+.detail.show { display:block; }
+.detlabel { font-size:13px; color:var(--mut); margin-bottom:8px; }
+.det { display:block; width:100%; text-align:left; margin-bottom:8px; padding:10px 12px; border-radius:8px;
+       border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; font-size:13.5px; }
+.det.on { border-color:var(--warn); background:var(--warnsoft); color:var(--warn); font-weight:600; }
+.det .box { font-weight:700; margin-right:6px; }
+#notes { width:100%; margin-top:4px; padding:9px 11px; border:1px solid var(--line); border-radius:8px;
+         background:var(--bg); color:var(--ink); font:14px system-ui,sans-serif; resize:vertical; }
+
+/* footer nav */
 .controls { position:fixed; bottom:0; left:0; right:0; background:var(--card);
             border-top:1px solid var(--line); padding:10px 18px; }
-.controls .inner { max-width:1200px; margin:0 auto; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.controls .inner { max-width:960px; margin:0 auto; display:flex; gap:12px; align-items:center; }
+.navhint { flex:1; text-align:center; font-size:13px; color:var(--mut); }
+
+/* buttons */
 button { font:14px system-ui,sans-serif; border:1px solid var(--line); background:var(--chip);
          color:var(--ink); border-radius:8px; padding:8px 14px; cursor:pointer; }
-button.primary { background:var(--acc); color:#fff; border-color:var(--acc); font-weight:600; }
-button.flag { border-color:var(--warn); color:var(--warn); background:transparent; }
-button.on { outline:3px solid var(--acc); }
-button.off { outline:3px solid var(--warn); }
-button:disabled { opacity:.5; cursor:not-allowed; }
-#notes { flex:1; min-width:160px; padding:8px 10px; border:1px solid var(--line);
-         border-radius:8px; background:var(--bg); color:var(--ink); }
-.kbd { color:var(--mut); font-size:12px; }
-.count { font-variant-numeric:tabular-nums; }
-.done { color:var(--acc); font-weight:700; }
-.pending { color:var(--warn); }
-.tick { font-size:12.5px; color:var(--mut); }
-#loading { max-width:1200px; margin:60px auto; padding:0 16px; color:var(--mut); text-align:center; }
+button.primary { background:var(--acc); color:#fff; border-color:var(--acc); font-weight:700; }
+button.ghost { background:transparent; color:var(--mut); }
+button:disabled { opacity:.45; cursor:not-allowed; }
+.kbd { color:var(--mut); font-size:11.5px; }
+
+#loading { max-width:960px; margin:60px auto; padding:0 16px; color:var(--mut); text-align:center; }
 #app { visibility:hidden; }
 #overlay { position:fixed; inset:0; background:var(--bg); z-index:50; display:flex;
            align-items:center; justify-content:center; padding:24px; text-align:center; }
@@ -53,35 +110,58 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 
 <div id="app">
 <header>
-  <div><strong>C13 pair validation</strong> <span class="tick" id="tick"></span></div>
+  <div class="brand"><strong>Pair review</strong> <span class="tick" id="tick"></span></div>
   <div class="prog"><div class="bar"><div id="pbar"></div></div></div>
   <div class="count" id="pcount"></div>
-  <button id="export" class="primary" disabled title="answer every pair first">Finish &amp; submit</button>
-  <button id="clear" title="wipe all saved answers">Reset</button>
+  <button id="export" class="primary" disabled title="review every pair first">Submit ▸</button>
+  <button id="clear" class="ghost" title="wipe all saved answers">Reset</button>
 </header>
+
 <div class="wrap">
-  <div class="meta">
-    <span class="concept" id="concept"></span>
-    <span class="chip" id="conceptprog"></span>
-    <span class="chip" id="pairid"></span>
-    <span class="chip" id="gen"></span>
+
+  <ol class="steps">
+    <li><b>Read the concept</b> and its definition.</li>
+    <li><b>Read both passages</b> carefully.</li>
+    <li><b>Judge the pair:</b> valid, or something off?</li>
+    <li>When the bar is full, review with <b>←/→</b> and <b>Submit</b>.</li>
+  </ol>
+
+  <div class="pairno" id="pairno"></div>
+
+  <div class="conceptcard">
+    <div class="eyebrow">The concept you're checking for</div>
+    <div class="concept" id="concept"></div>
+    <div class="def" id="def"></div>
+    <div class="rule" id="rule"></div>
   </div>
-  <div class="def" id="def"></div>
-  <div class="meta"><span class="chip" id="topic"></span></div>
+
   <div class="texts">
-    <div class="panel pos"><h3>POSITIVE — should EXPRESS the concept</h3><div id="pos"></div></div>
-    <div class="panel neg"><h3>NEGATIVE — should LACK it / express the opposite</h3><div id="neg"></div></div>
+    <div class="panel pos"><h3 id="posh"></h3><div class="body" id="pos"></div></div>
+    <div class="panel neg"><h3 id="negh"></h3><div class="body" id="neg"></div></div>
+  </div>
+
+  <div class="judgement">
+    <div class="jq" id="jq"></div>
+    <div class="choices">
+      <button class="choice valid" id="choiceValid">✓ Yes — valid pair<small id="validSub"></small></button>
+      <button class="choice invalid" id="choiceInvalid">✗ No — something's off<small>the pair doesn't do what it claims</small></button>
+    </div>
+    <div class="detail" id="detail">
+      <div class="detlabel">What's off? (optional — tap any that apply, and add a note)</div>
+      <button class="det" id="detPos"><span class="box">☐</span><span id="detPosTxt"></span></button>
+      <button class="det" id="detNeg"><span class="box">☐</span><span id="detNegTxt"></span></button>
+      <textarea id="notes" rows="2" placeholder="Briefly explain what's wrong (optional but helpful)"></textarea>
+    </div>
   </div>
 </div>
+
 <div class="controls"><div class="inner">
-  <button id="prev">←</button>
-  <button class="primary" id="valid">✓ Valid pair <span class="kbd">(A)</span></button>
-  <button id="q1">pos expresses <span class="kbd">(1)</span></button>
-  <button id="q2">neg absent/opp <span class="kbd">(2)</span></button>
-  <button id="q3">pair valid <span class="kbd">(3)</span></button>
-  <input id="notes" placeholder="notes — why it fails (N to focus)">
-  <button id="next">→ next</button>
-  <span class="kbd">A=all-good · 1/2/3=toggle · N=notes · ←/→=move</span>
+  <button class="ghost" id="prev">← Previous</button>
+  <span class="navhint" id="navhint"></span>
+  <button class="ghost" id="next">Next →</button>
+</div>
+<div class="inner" style="justify-content:center;margin-top:4px">
+  <span class="kbd">Shortcuts: V = valid · X = not valid · N = note · ← / → = move</span>
 </div></div>
 </div>
 
@@ -105,16 +185,16 @@ const LS = "c13_" + DATASET + "_" + (BLOCK ?? "all") + "_" + (PROLIFIC_PID || "p
 const $ = id => document.getElementById(id);
 let pairs = [], defs = {}, store = {}, i = 0;
 
+const cname = p => (p.concept || "").replace(/_/g, " ");
+
 // ===== Data loading ======================================================
 async function boot() {
   try {
     if (IS_PARTICIPANT) $("clear").style.display = "none";
-    // definitions
     const dRes = await fetch(REST + "/c13_defs?dataset=eq." + encodeURIComponent(DATASET) +
       "&select=concept,definition", { headers: HDRS });
     if (!dRes.ok) throw new Error("defs HTTP " + dRes.status);
     (await dRes.json()).forEach(r => { defs[r.concept] = r.definition; });
-    // pairs (optionally filtered to a block)
     let url = REST + "/c13_pairs?dataset=eq." + encodeURIComponent(DATASET) +
       "&select=pair_id,block,concept,topic,domain,model_name,content_jaccard,pos_text,neg_text" +
       "&order=concept,pair_id&limit=2000";
@@ -128,10 +208,10 @@ async function boot() {
       return;
     }
     store = JSON.parse(localStorage.getItem(LS) || "{}");
-    for (let k = 0; k < pairs.length; k++) { if (!store[key(pairs[k])]) { i = k; break; } }
+    for (let k = 0; k < pairs.length; k++) { if (!answeredRec(pairs[k])) { i = k; break; } }
     $("tick").textContent =
       (BLOCK !== null && BLOCK !== "" ? "block " + BLOCK + " · " : "preview · ") +
-      "answers auto-save on this device";
+      "saves on this device";
     $("loading").style.display = "none";
     $("app").style.visibility = "visible";
     render();
@@ -146,46 +226,77 @@ async function boot() {
 function key(p) { return p.pair_id + "|" + p.concept; }
 function get(p) { return store[key(p)] || null; }
 function save(p, rec) { store[key(p)] = rec; localStorage.setItem(LS, JSON.stringify(store)); paint(); }
-function answered() { return pairs.filter(p => get(p)).length; }
+function answeredRec(p) { const r = get(p); return r && r.valid !== null && r.valid !== undefined; }
+function answered() { return pairs.filter(answeredRec).length; }
 function current() { return pairs[i]; }
 function rec() { return get(current()) || { pos: null, neg: null, valid: null, notes: "" }; }
+function notesVal() { return $("notes").value; }
 
 function render() {
-  const p = pairs[i];
-  $("concept").textContent = p.concept.replace("_", " ");
+  const p = pairs[i], c = cname(p);
+  $("pairno").textContent = "Pair " + (i + 1) + " of " + pairs.length;
+  $("concept").textContent = c;
   $("def").textContent = defs[p.concept] || "";
-  $("pairid").textContent = p.pair_id;
-  $("gen").textContent = p.model_name || "";
-  $("topic").textContent = "topic: " + (p.topic || "");
+  $("rule").innerHTML =
+    "A <b>valid pair</b> means the <span class='pos-word'>POSITIVE</span> passage clearly " +
+    "<b>expresses</b> “" + c + "”, and the <span class='neg-word'>NEGATIVE</span> passage does " +
+    "<b>not</b>. If either isn't true, it's not a valid pair.";
+  $("posh").textContent = "POSITIVE passage — SHOULD express “" + c + "”";
+  $("negh").textContent = "NEGATIVE passage — should NOT express “" + c + "”";
   $("pos").textContent = p.pos_text;
   $("neg").textContent = p.neg_text;
-  const sib = pairs.filter(q => q.concept === p.concept);
-  const done = sib.filter(q => get(q)).length;
-  $("conceptprog").textContent = done + "/" + sib.length + " in concept";
+  $("jq").textContent = "Is this a valid pair for “" + c + "”?";
+  $("validSub").textContent = "positive expresses it, negative doesn't";
+  $("detPosTxt").textContent = "The POSITIVE passage does not clearly express “" + c + "”";
+  $("detNegTxt").textContent = "The NEGATIVE passage does express “" + c + "” (it shouldn't)";
+
   const r = get(p) || {};
-  for (const [id, f] of [["q1", "pos"], ["q2", "neg"], ["q3", "valid"]]) {
-    const b = $(id); b.classList.remove("on", "off");
-    if (r[f] === 1) b.classList.add("on");
-    if (r[f] === 0) b.classList.add("off");
-  }
+  $("choiceValid").classList.toggle("sel", r.valid === 1);
+  $("choiceInvalid").classList.toggle("sel", r.valid === 0);
+  $("detail").classList.toggle("show", r.valid === 0);
+  setDet("detPos", r.pos === 0);
+  setDet("detNeg", r.neg === 0);
   $("notes").value = r.notes || "";
   document.querySelectorAll(".panel").forEach(el => el.scrollTop = 0);
   paint();
 }
-function paint() {
-  const n = answered();
-  $("pbar").style.width = (100 * n / pairs.length) + "%";
-  $("pcount").innerHTML = `<span class="${n === pairs.length ? 'done' : 'pending'}">${n}/${pairs.length}</span>`;
-  const complete = n === pairs.length;
-  $("export").disabled = !complete;
-  $("export").title = complete ? "submit your answers" : "answer every pair first";
+function setDet(id, on) {
+  const b = $(id); b.classList.toggle("on", on);
+  b.querySelector(".box").textContent = on ? "☑" : "☐";
 }
-function toggle(f) { const r = rec(); r[f] = (r[f] === 1 ? 0 : 1); r.notes = $("notes").value; save(current(), r); render(); }
-function allGood() { save(current(), { pos: 1, neg: 1, valid: 1, notes: $("notes").value }); move(1); }
-function move(d) {
+function paint() {
+  const n = answered(), total = pairs.length, complete = n === total;
+  $("pbar").style.width = (100 * n / total) + "%";
+  $("pcount").innerHTML = `<span class="${complete ? 'done' : 'pending'}">${n} of ${total} reviewed</span>`;
+  $("export").disabled = !complete;
+  $("export").title = complete ? "submit your answers" : "review every pair first";
+  $("navhint").textContent = complete
+    ? "All reviewed — press Submit ▸ (top right) when ready"
+    : (total - n) + " left to review";
+}
+
+// ===== Decisions =========================================================
+function decideValid() { save(current(), { pos: 1, neg: 1, valid: 1, notes: notesVal() }); move(1); }
+function decideInvalid() {
   const r = rec();
-  if (r.pos !== null || r.neg !== null || r.valid !== null) { r.notes = $("notes").value; save(current(), r); }
-  i = Math.min(pairs.length - 1, Math.max(0, i + d)); render();
+  save(current(), { pos: r.pos === 0 ? 0 : 1, neg: r.neg === 0 ? 0 : 1, valid: 0, notes: notesVal() });
+  render(); $("notes").focus();
+}
+function toggleDet(field) {
+  const r = rec();
+  const nr = { pos: r.pos === null ? 1 : r.pos, neg: r.neg === null ? 1 : r.neg, valid: 0, notes: notesVal() };
+  nr[field] = nr[field] === 0 ? 1 : 0;
+  save(current(), nr); render();
+}
+function move(d) {
+  persistNotes();
+  i = Math.min(pairs.length - 1, Math.max(0, i + d));
+  render();
+}
+function persistNotes() {
+  const r = get(current());
+  if (r) { r.notes = notesVal(); save(current(), r); }
+  else if (notesVal()) { save(current(), { pos: null, neg: null, valid: null, notes: notesVal() }); }
 }
 
 // ===== Submit + completion ==============================================
@@ -235,7 +346,7 @@ async function submitAll() {
       overlay("<h2 style='color:var(--acc)'>Submitted.</h2><p>(Preview mode — no Prolific redirect.)</p>");
     }
   } catch (e) {
-    btn.disabled = false; btn.textContent = "Finish & submit";
+    btn.disabled = false; btn.textContent = "Submit ▸";
     overlay("<h2 style='color:var(--warn)'>Submission failed</h2>" +
       "<p>Your answers are still saved on this device. Press retry. If it keeps failing, contact the researcher.</p>" +
       "<p style='color:var(--mut);font-size:12px'>" + String(e).slice(0, 300) + "</p>" +
@@ -244,24 +355,24 @@ async function submitAll() {
 }
 
 // ===== Wiring ============================================================
-$("valid").onclick = allGood;
-$("q1").onclick = () => toggle("pos");
-$("q2").onclick = () => toggle("neg");
-$("q3").onclick = () => toggle("valid");
+$("choiceValid").onclick = decideValid;
+$("choiceInvalid").onclick = decideInvalid;
+$("detPos").onclick = () => toggleDet("pos");
+$("detNeg").onclick = () => toggleDet("neg");
 $("prev").onclick = () => move(-1);
 $("next").onclick = () => move(1);
 $("export").onclick = submitAll;
-$("notes").addEventListener("change", () => { const r = rec(); r.notes = $("notes").value; save(current(), r); });
+$("notes").addEventListener("input", persistNotes);
 $("clear").onclick = () => { if (confirm("Wipe ALL saved answers for this block?")) { store = {}; localStorage.removeItem(LS); i = 0; render(); } };
 document.addEventListener("keydown", e => {
   if (!pairs.length) return;
   if (document.activeElement === $("notes")) { if (e.key === "Escape") document.activeElement.blur(); return; }
-  if (e.key === "a" || e.key === "A" || e.key === "Enter") { e.preventDefault(); allGood(); }
-  else if (e.key === "1") toggle("pos");
-  else if (e.key === "2") toggle("neg");
-  else if (e.key === "3") toggle("valid");
-  else if (e.key === "x" || e.key === "X") { toggle("valid"); $("notes").focus(); }
-  else if (e.key === "n" || e.key === "N") { e.preventDefault(); $("notes").focus(); }
+  const k = e.key.toLowerCase();
+  if (k === "v" || e.key === "Enter") { e.preventDefault(); decideValid(); }
+  else if (k === "x") { decideInvalid(); }
+  else if (k === "n") { e.preventDefault(); decideInvalid(); }
+  else if (e.key === "1") toggleDet("pos");
+  else if (e.key === "2") toggleDet("neg");
   else if (e.key === "ArrowRight") move(1);
   else if (e.key === "ArrowLeft") move(-1);
 });
