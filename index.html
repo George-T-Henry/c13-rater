@@ -187,10 +187,12 @@ const QS = new URLSearchParams(location.search);
 const DATASET = QS.get("dataset") || "c13_firstpass";
 const BLOCK = QS.get("block");
 const PROLIFIC_PID = QS.get("PROLIFIC_PID") || QS.get("prolific_pid") || "";
+const RATER = QS.get("rater") || "";               // named non-Prolific labeler tag
 const STUDY_ID = QS.get("STUDY_ID") || "";
 const SESSION_ID = QS.get("SESSION_ID") || "";
-const IS_PARTICIPANT = !!PROLIFIC_PID;
-const LS = "c13_" + DATASET + "_" + (BLOCK ?? "all") + "_" + (PROLIFIC_PID || "preview");
+const IS_PARTICIPANT = !!PROLIFIC_PID;             // only true Prolific runs redirect + lock
+const LABELER = PROLIFIC_PID || RATER;             // who owns these labels
+const LS = "c13_" + DATASET + "_" + (BLOCK ?? "all") + "_" + (LABELER || "preview");
 
 const $ = id => document.getElementById(id);
 let pairs = [], defs = {}, store = {}, i = 0;
@@ -378,7 +380,7 @@ function buildRows() {
     const r = get(p) || {};
     return {
       dataset: DATASET, block: p.block, pair_id: p.pair_id, concept: p.concept,
-      prolific_pid: PROLIFIC_PID, study_id: STUDY_ID, session_id: SESSION_ID,
+      prolific_pid: LABELER, study_id: STUDY_ID, session_id: SESSION_ID,
       pos: r.pos ?? null, neg: r.neg ?? null, valid: r.valid ?? null,
       notes: r.notes || "", user_agent: navigator.userAgent
     };
