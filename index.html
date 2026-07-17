@@ -9,13 +9,13 @@
 @media (prefers-color-scheme: dark) {
   :root { --bg:#141414; --card:#1e1e1e; --ink:#e8e8e8; --mut:#9a9a9a; --line:#333;
           --pos:#1c2a1c; --neg:#2c1d1a; --acc:#7dc99a; --warn:#e08a6d; --chip:#2a2a2a;
-          --accsoft:#20302420; --warnsoft:#30201c; } }
+          --accsoft:#1d2a22; --warnsoft:#30201c; } }
 * { box-sizing:border-box; }
 body { margin:0; font:15px/1.55 system-ui,sans-serif; background:var(--bg); color:var(--ink); }
 
 /* header */
 header { position:sticky; top:0; background:var(--card); border-bottom:1px solid var(--line);
-         padding:10px 18px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; z-index:5; }
+         padding:10px 18px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; z-index:7; }
 header .brand { font-size:15px; }
 header .prog { flex:1; min-width:180px; }
 .bar { height:9px; background:var(--chip); border-radius:5px; overflow:hidden; }
@@ -26,26 +26,24 @@ header .prog { flex:1; min-width:180px; }
 .tick { font-size:12.5px; color:var(--mut); }
 
 /* layout */
-.wrap { max-width:960px; margin:16px auto; padding:0 16px 150px; }
+.wrap { max-width:960px; margin:14px auto; padding:0 16px 320px; }
 
-/* how it works */
-.steps { display:flex; flex-wrap:wrap; gap:6px 18px; margin:0 0 18px; padding:12px 16px;
+.steps { display:flex; flex-wrap:wrap; gap:6px 18px; margin:0 0 14px; padding:11px 16px;
          list-style:none; counter-reset:s; background:var(--card); border:1px solid var(--line);
-         border-radius:10px; font-size:13px; color:var(--mut); }
-.steps li { counter-increment:s; position:relative; padding-left:24px; }
-.steps li::before { content:counter(s); position:absolute; left:0; top:0; width:17px; height:17px;
-         border-radius:50%; background:var(--acc); color:#fff; font-size:11px; font-weight:700;
+         border-radius:10px; font-size:12.5px; color:var(--mut); }
+.steps li { counter-increment:s; position:relative; padding-left:23px; }
+.steps li::before { content:counter(s); position:absolute; left:0; top:1px; width:16px; height:16px;
+         border-radius:50%; background:var(--acc); color:#fff; font-size:10.5px; font-weight:700;
          display:flex; align-items:center; justify-content:center; }
 .steps b { color:var(--ink); }
 
 .pairno { font-size:12.5px; color:var(--mut); margin-bottom:8px; letter-spacing:.02em; }
 
-/* concept card */
 .conceptcard { border:1px solid var(--line); border-left:4px solid var(--acc); border-radius:10px;
-               background:var(--card); padding:14px 18px; margin-bottom:16px; }
+               background:var(--card); padding:13px 18px; margin-bottom:14px; }
 .eyebrow { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--mut); font-weight:700; }
-.concept { font-size:24px; font-weight:800; text-transform:capitalize; margin:3px 0 4px; }
-.def { color:var(--ink); font-size:14px; margin-bottom:12px; }
+.concept { font-size:23px; font-weight:800; text-transform:capitalize; margin:3px 0 4px; }
+.def { color:var(--ink); font-size:14px; margin-bottom:11px; }
 .rule { font-size:13.5px; background:var(--accsoft); border-radius:8px; padding:9px 12px; }
 .pos-word { color:var(--acc); font-weight:700; }
 .neg-word { color:var(--warn); font-weight:700; }
@@ -53,21 +51,42 @@ header .prog { flex:1; min-width:180px; }
 /* passages */
 .texts { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 @media (max-width:820px){ .texts { grid-template-columns:1fr; } }
-.panel { border:1px solid var(--line); border-radius:10px; padding:12px 16px 14px; background:var(--card);
-         max-height:46vh; overflow-y:auto; }
+.panel { position:relative; border:1px solid var(--line); border-radius:10px; padding:12px 16px 14px;
+         background:var(--card); max-height:44vh; overflow-y:auto; }
 .panel .body { white-space:pre-wrap; }
 .panel.pos { background:var(--pos); border-color:#cfe4d3; }
 .panel.neg { background:var(--neg); border-color:#eed3cc; }
-.panel h3 { margin:0 0 8px; font-size:12px; letter-spacing:.04em; font-weight:700; }
+.panel h3 { margin:0 0 8px; font-size:12px; letter-spacing:.04em; font-weight:700;
+            position:sticky; top:-12px; padding:6px 0; margin-top:-6px;
+            background:inherit; }
 .panel.pos h3 { color:var(--acc); }
 .panel.neg h3 { color:var(--warn); }
+.morehint { position:sticky; bottom:-14px; margin:6px -16px -14px; padding:6px 16px; font-size:11.5px;
+            font-weight:600; text-align:center; background:var(--warn); color:#fff; border-radius:0 0 10px 10px; }
+.panel.read .morehint { display:none; }
 
-/* judgement */
-.judgement { margin-top:18px; border:1px solid var(--line); border-radius:12px; background:var(--card);
-             padding:16px 18px; }
-.jq { font-size:16px; font-weight:700; margin-bottom:12px; }
+/* fixed action bar */
+.actionbar { position:fixed; left:0; right:0; bottom:0; z-index:6; background:var(--card);
+             border-top:1px solid var(--line); box-shadow:0 -6px 20px rgba(0,0,0,.08);
+             max-height:82vh; overflow-y:auto; }
+.abInner { max-width:960px; margin:0 auto; padding:11px 16px 13px; }
+.jq { font-size:15px; font-weight:700; margin-bottom:8px; }
+.gatehint { display:none; color:var(--warn); background:var(--warnsoft); border-radius:8px;
+            padding:8px 11px; font-size:13px; font-weight:600; margin-bottom:10px; }
+.gatehint.show { display:block; }
+
+.detail { display:none; margin-bottom:12px; }
+.detail.show { display:block; }
+.detlabel { font-size:12.5px; color:var(--mut); margin-bottom:7px; }
+.det { display:block; width:100%; text-align:left; margin-bottom:7px; padding:9px 12px; border-radius:8px;
+       border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; font-size:13.5px; }
+.det.on { border-color:var(--warn); background:var(--warnsoft); color:var(--warn); font-weight:600; }
+.det .box { font-weight:700; margin-right:6px; }
+#notes { width:100%; margin-top:3px; padding:9px 11px; border:1px solid var(--line); border-radius:8px;
+         background:var(--bg); color:var(--ink); font:14px system-ui,sans-serif; resize:vertical; }
+
 .choices { display:flex; gap:12px; flex-wrap:wrap; }
-.choice { flex:1 1 220px; padding:16px 18px; border-radius:10px; font-size:16px; font-weight:700;
+.choice { flex:1 1 220px; padding:14px 18px; border-radius:10px; font-size:16px; font-weight:700;
           cursor:pointer; text-align:left; line-height:1.3; transition:transform .05s; }
 .choice small { display:block; font-size:12.5px; font-weight:500; opacity:.85; margin-top:3px; }
 .choice:active { transform:scale(.99); }
@@ -75,22 +94,11 @@ header .prog { flex:1; min-width:180px; }
 .choice.invalid { border:2px solid var(--mut);  background:transparent; color:var(--ink); }
 .choice.valid.sel   { background:var(--acc);  color:#fff; border-color:var(--acc); }
 .choice.invalid.sel { background:var(--warn); color:#fff; border-color:var(--warn); }
+.choice:disabled { opacity:.4; cursor:not-allowed; }
 
-.detail { display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line); }
-.detail.show { display:block; }
-.detlabel { font-size:13px; color:var(--mut); margin-bottom:8px; }
-.det { display:block; width:100%; text-align:left; margin-bottom:8px; padding:10px 12px; border-radius:8px;
-       border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; font-size:13.5px; }
-.det.on { border-color:var(--warn); background:var(--warnsoft); color:var(--warn); font-weight:600; }
-.det .box { font-weight:700; margin-right:6px; }
-#notes { width:100%; margin-top:4px; padding:9px 11px; border:1px solid var(--line); border-radius:8px;
-         background:var(--bg); color:var(--ink); font:14px system-ui,sans-serif; resize:vertical; }
-
-/* footer nav */
-.controls { position:fixed; bottom:0; left:0; right:0; background:var(--card);
-            border-top:1px solid var(--line); padding:10px 18px; }
-.controls .inner { max-width:960px; margin:0 auto; display:flex; gap:12px; align-items:center; }
-.navhint { flex:1; text-align:center; font-size:13px; color:var(--mut); }
+.navrow { display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+.navhint { flex:1; text-align:center; font-size:13px; color:var(--mut); min-width:120px; }
+.kbd { color:var(--mut); font-size:11.5px; width:100%; text-align:center; margin-top:2px; }
 
 /* buttons */
 button { font:14px system-ui,sans-serif; border:1px solid var(--line); background:var(--chip);
@@ -98,7 +106,6 @@ button { font:14px system-ui,sans-serif; border:1px solid var(--line); backgroun
 button.primary { background:var(--acc); color:#fff; border-color:var(--acc); font-weight:700; }
 button.ghost { background:transparent; color:var(--mut); }
 button:disabled { opacity:.45; cursor:not-allowed; }
-.kbd { color:var(--mut); font-size:11.5px; }
 
 #loading { max-width:960px; margin:60px auto; padding:0 16px; color:var(--mut); text-align:center; }
 #app { visibility:hidden; }
@@ -118,10 +125,9 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 </header>
 
 <div class="wrap">
-
   <ol class="steps">
     <li><b>Read the concept</b> and its definition.</li>
-    <li><b>Read both passages</b> carefully.</li>
+    <li><b>Read both passages</b> fully (scroll to the end).</li>
     <li><b>Judge the pair:</b> valid, or something off?</li>
     <li>When the bar is full, review with <b>←/→</b> and <b>Submit</b>.</li>
   </ol>
@@ -136,32 +142,36 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   </div>
 
   <div class="texts">
-    <div class="panel pos"><h3 id="posh"></h3><div class="body" id="pos"></div></div>
-    <div class="panel neg"><h3 id="negh"></h3><div class="body" id="neg"></div></div>
-  </div>
-
-  <div class="judgement">
-    <div class="jq" id="jq"></div>
-    <div class="choices">
-      <button class="choice valid" id="choiceValid">✓ Yes — valid pair<small id="validSub"></small></button>
-      <button class="choice invalid" id="choiceInvalid">✗ No — something's off<small>the pair doesn't do what it claims</small></button>
+    <div class="panel pos" id="posPanel">
+      <h3 id="posh"></h3><div class="body" id="pos"></div>
+      <div class="morehint">▼ keep scrolling to read all of this passage</div>
     </div>
-    <div class="detail" id="detail">
-      <div class="detlabel">What's off? (optional — tap any that apply, and add a note)</div>
-      <button class="det" id="detPos"><span class="box">☐</span><span id="detPosTxt"></span></button>
-      <button class="det" id="detNeg"><span class="box">☐</span><span id="detNegTxt"></span></button>
-      <textarea id="notes" rows="2" placeholder="Briefly explain what's wrong (optional but helpful)"></textarea>
+    <div class="panel neg" id="negPanel">
+      <h3 id="negh"></h3><div class="body" id="neg"></div>
+      <div class="morehint">▼ keep scrolling to read all of this passage</div>
     </div>
   </div>
 </div>
 
-<div class="controls"><div class="inner">
-  <button class="ghost" id="prev">← Previous</button>
-  <span class="navhint" id="navhint"></span>
-  <button class="ghost" id="next">Next →</button>
-</div>
-<div class="inner" style="justify-content:center;margin-top:4px">
-  <span class="kbd">Shortcuts: V = valid · X = not valid · N = note · ← / → = move</span>
+<div class="actionbar" id="actionbar"><div class="abInner">
+  <div class="jq" id="jq"></div>
+  <div class="gatehint" id="gatehint"></div>
+  <div class="detail" id="detail">
+    <div class="detlabel">What's off? (optional — tap any that apply, and add a note)</div>
+    <button class="det" id="detPos"><span class="box">☐</span><span id="detPosTxt"></span></button>
+    <button class="det" id="detNeg"><span class="box">☐</span><span id="detNegTxt"></span></button>
+    <textarea id="notes" rows="2" placeholder="Briefly explain what's wrong (optional but helpful)"></textarea>
+  </div>
+  <div class="choices">
+    <button class="choice valid" id="choiceValid">✓ Yes — valid pair<small id="validSub"></small></button>
+    <button class="choice invalid" id="choiceInvalid">✗ No — something's off<small>the pair doesn't do what it claims</small></button>
+  </div>
+  <div class="navrow">
+    <button class="ghost" id="prev">← Previous</button>
+    <span class="navhint" id="navhint"></span>
+    <button class="ghost" id="next">Next →</button>
+    <span class="kbd">Shortcuts: V = valid · X = not valid · N = note · ← / → = move</span>
+  </div>
 </div></div>
 </div>
 
@@ -175,7 +185,7 @@ const COMPLETION_CODE = "C13FIRSTPASS";
 
 const QS = new URLSearchParams(location.search);
 const DATASET = QS.get("dataset") || "c13_firstpass";
-const BLOCK = QS.get("block");                              // string | null
+const BLOCK = QS.get("block");
 const PROLIFIC_PID = QS.get("PROLIFIC_PID") || QS.get("prolific_pid") || "";
 const STUDY_ID = QS.get("STUDY_ID") || "";
 const SESSION_ID = QS.get("SESSION_ID") || "";
@@ -184,6 +194,7 @@ const LS = "c13_" + DATASET + "_" + (BLOCK ?? "all") + "_" + (PROLIFIC_PID || "p
 
 const $ = id => document.getElementById(id);
 let pairs = [], defs = {}, store = {}, i = 0;
+let renderedKey = null, readPos = false, readNeg = false;
 
 const cname = p => (p.concept || "").replace(/_/g, " ");
 
@@ -210,8 +221,15 @@ async function boot() {
     store = JSON.parse(localStorage.getItem(LS) || "{}");
     for (let k = 0; k < pairs.length; k++) { if (!answeredRec(pairs[k])) { i = k; break; } }
     $("tick").textContent =
-      (BLOCK !== null && BLOCK !== "" ? "block " + BLOCK + " · " : "preview · ") +
-      "saves on this device";
+      (BLOCK !== null && BLOCK !== "" ? "block " + BLOCK + " · " : "preview · ") + "saves on this device";
+    $("posPanel").addEventListener("scroll", () => onScroll("pos"));
+    $("negPanel").addEventListener("scroll", () => onScroll("neg"));
+    window.addEventListener("resize", () => {
+      if (!pairs.length) return;
+      if (!readPos && fits($("posPanel"))) markRead("pos");
+      if (!readNeg && fits($("negPanel"))) markRead("neg");
+      updateGate();
+    });
     $("loading").style.display = "none";
     $("app").style.visibility = "visible";
     render();
@@ -226,14 +244,64 @@ async function boot() {
 function key(p) { return p.pair_id + "|" + p.concept; }
 function get(p) { return store[key(p)] || null; }
 function save(p, rec) { store[key(p)] = rec; localStorage.setItem(LS, JSON.stringify(store)); paint(); }
-function answeredRec(p) { const r = get(p); return r && r.valid !== null && r.valid !== undefined; }
+function answeredRec(p) { const r = get(p); return !!r && r.valid !== null && r.valid !== undefined; }
 function answered() { return pairs.filter(answeredRec).length; }
 function current() { return pairs[i]; }
 function rec() { return get(current()) || { pos: null, neg: null, valid: null, notes: "" }; }
 function notesVal() { return $("notes").value; }
 
+// ---- reading gate --------------------------------------------------------
+function fits(el) { return el.scrollHeight <= el.clientHeight + 4; }
+function atBottom(el) { return el.scrollTop + el.clientHeight >= el.scrollHeight - 8; }
+function markRead(side) {
+  if (side === "pos") { readPos = true; $("posPanel").classList.add("read"); }
+  else { readNeg = true; $("negPanel").classList.add("read"); }
+}
+function onScroll(side) {
+  const el = side === "pos" ? $("posPanel") : $("negPanel");
+  if (atBottom(el)) { markRead(side); updateGate(); }
+}
+function measureFit() {
+  readPos = false; readNeg = false;
+  $("posPanel").classList.remove("read"); $("negPanel").classList.remove("read");
+  if (fits($("posPanel"))) markRead("pos");
+  if (fits($("negPanel"))) markRead("neg");
+}
+function locked() { return !(answeredRec(current()) || (readPos && readNeg)); }
+function updateGate() {
+  const lock = locked();
+  $("choiceValid").disabled = lock;
+  $("choiceInvalid").disabled = lock;
+  if (lock) {
+    const need = [];
+    if (!readPos) need.push("POSITIVE");
+    if (!readNeg) need.push("NEGATIVE");
+    $("gatehint").textContent = "Read to the end of the " + need.join(" and ") +
+      " passage" + (need.length > 1 ? "s" : "") + " to unlock your choice.";
+    $("gatehint").classList.add("show");
+  } else {
+    $("gatehint").classList.remove("show");
+  }
+  layoutPanels();
+  syncPad();
+}
+// Size the passage panels so their bottom edge sits ABOVE the fixed action bar,
+// otherwise the lines a reader must scroll to would be hidden behind it.
+function layoutPanels() {
+  const barH = $("actionbar").offsetHeight;
+  const top = $("posPanel").getBoundingClientRect().top;   // page isn't meant to scroll
+  const avail = window.innerHeight - top - barH - 14;
+  const h = Math.max(150, Math.round(avail));
+  $("posPanel").style.maxHeight = h + "px";
+  $("negPanel").style.maxHeight = h + "px";
+}
+function syncPad() {
+  document.querySelector(".wrap").style.paddingBottom = ($("actionbar").offsetHeight + 24) + "px";
+}
+
 function render() {
   const p = pairs[i], c = cname(p);
+  const newPair = key(p) !== renderedKey; renderedKey = key(p);
   $("pairno").textContent = "Pair " + (i + 1) + " of " + pairs.length;
   $("concept").textContent = c;
   $("def").textContent = defs[p.concept] || "";
@@ -257,7 +325,14 @@ function render() {
   setDet("detPos", r.pos === 0);
   setDet("detNeg", r.neg === 0);
   $("notes").value = r.notes || "";
-  document.querySelectorAll(".panel").forEach(el => el.scrollTop = 0);
+
+  if (newPair) {
+    $("posPanel").scrollTop = 0; $("negPanel").scrollTop = 0;
+    readPos = false; readNeg = false;
+    $("posPanel").classList.remove("read"); $("negPanel").classList.remove("read");
+  }
+  updateGate();                         // sizes panels to fit above the bar
+  if (newPair) { measureFit(); updateGate(); }
   paint();
 }
 function setDet(id, on) {
@@ -276,23 +351,21 @@ function paint() {
 }
 
 // ===== Decisions =========================================================
-function decideValid() { save(current(), { pos: 1, neg: 1, valid: 1, notes: notesVal() }); move(1); }
+function decideValid() { if (locked()) return; save(current(), { pos: 1, neg: 1, valid: 1, notes: notesVal() }); move(1); }
 function decideInvalid() {
+  if (locked()) return;
   const r = rec();
   save(current(), { pos: r.pos === 0 ? 0 : 1, neg: r.neg === 0 ? 0 : 1, valid: 0, notes: notesVal() });
   render(); $("notes").focus();
 }
 function toggleDet(field) {
+  if (locked()) return;
   const r = rec();
   const nr = { pos: r.pos === null ? 1 : r.pos, neg: r.neg === null ? 1 : r.neg, valid: 0, notes: notesVal() };
   nr[field] = nr[field] === 0 ? 1 : 0;
   save(current(), nr); render();
 }
-function move(d) {
-  persistNotes();
-  i = Math.min(pairs.length - 1, Math.max(0, i + d));
-  render();
-}
+function move(d) { persistNotes(); i = Math.min(pairs.length - 1, Math.max(0, i + d)); render(); }
 function persistNotes() {
   const r = get(current());
   if (r) { r.notes = notesVal(); save(current(), r); }
