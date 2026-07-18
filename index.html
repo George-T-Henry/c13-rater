@@ -98,7 +98,16 @@ header .prog { flex:1; min-width:180px; }
 
 .navrow { display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap:wrap; }
 .navhint { flex:1; text-align:center; font-size:13px; color:var(--mut); min-width:120px; }
-.kbd { color:var(--mut); font-size:11.5px; width:100%; text-align:center; margin-top:2px; }
+/* keyboard-shortcut helper: subtle icon, details on hover/focus */
+.kbdhelp { position:relative; display:inline-flex; }
+.kbdhelp .kbdbtn { padding:6px 9px; font-size:15px; line-height:1; color:var(--mut); border-radius:8px; }
+.kbdhelp .kbdbtn:hover, .kbdhelp:focus-within .kbdbtn { color:var(--ink); border-color:var(--mut); }
+.kbdtip { position:absolute; right:0; bottom:calc(100% + 8px); width:max-content; max-width:280px;
+          background:var(--card); color:var(--ink); border:1px solid var(--line); font-size:12px; line-height:1.7;
+          padding:9px 12px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.18); text-align:left;
+          opacity:0; visibility:hidden; transform:translateY(4px); transition:opacity .12s, transform .12s; z-index:8; }
+.kbdtip b { color:var(--acc); font-variant-numeric:tabular-nums; }
+.kbdhelp:hover .kbdtip, .kbdhelp:focus-within .kbdtip { opacity:1; visibility:visible; transform:translateY(0); }
 
 /* buttons */
 button { font:14px system-ui,sans-serif; border:1px solid var(--line); background:var(--chip);
@@ -169,8 +178,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   <div class="navrow">
     <button class="ghost" id="prev">← Previous</button>
     <span class="navhint" id="navhint"></span>
+    <span class="kbdhelp" tabindex="0" aria-label="Keyboard shortcuts">
+      <button class="ghost kbdbtn" aria-hidden="true" tabindex="-1">⌨</button>
+      <span class="kbdtip" role="tooltip">Keyboard shortcuts<br>
+        <b>V</b> valid · <b>X</b> not valid<br><b>N</b> note · <b>←</b>/<b>→</b> move</span>
+    </span>
     <button class="ghost" id="next">Next →</button>
-    <span class="kbd">Shortcuts: V = valid · X = not valid · N = note · ← / → = move</span>
   </div>
 </div></div>
 </div>
@@ -403,10 +416,11 @@ function showAlready() {
 async function submitAll() {
   const btn = $("export"); btn.disabled = true; btn.textContent = "Submitting…";
   try {
+    const rows = buildRows();
     const resp = await fetch(REST + "/c13_ratings", {
       method: "POST",
       headers: { ...HDRS, "Content-Type": "application/json", "Prefer": "return=minimal" },
-      body: JSON.stringify(buildRows())
+      body: JSON.stringify(rows)
     });
     if (!resp.ok) throw new Error("HTTP " + resp.status + " " + (await resp.text()));
     localStorage.setItem(LS + "_submitted", "1");
@@ -418,7 +432,13 @@ async function submitAll() {
         "Return to Prolific ▸</button></a></p>");
       location.href = prolificReturn();
     } else {
-      overlay("<h2 style='color:var(--acc)'>Submitted.</h2><p>(Preview mode — no Prolific redirect.)</p>");
+      overlay("<h2 style='color:var(--acc)'>✓ Saved to the database.</h2>" +
+        "<p>All <b>" + rows.length + "</b> ratings for " +
+        (BLOCK !== null && BLOCK !== "" ? "block <b>" + BLOCK + "</b>" : "this session") +
+        " were written to Supabase — dataset <b>" + DATASET + "</b>, labeler <b>" +
+        (LABELER || "preview") + "</b>.</p>" +
+        "<p style='color:var(--mut);font-size:13px'>Your work is recorded; you can safely close this tab. " +
+        "(This was a non-Prolific run, so there’s no Prolific redirect.)</p>");
     }
   } catch (e) {
     btn.disabled = false; btn.textContent = "Submit ▸";
