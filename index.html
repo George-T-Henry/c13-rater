@@ -199,12 +199,39 @@ const COMPLETION_CODE = "C13FIRSTPASS";
 const QS = new URLSearchParams(location.search);
 const DATASET = QS.get("dataset") || "c13_firstpass";
 const BLOCK = QS.get("block");
-const PROLIFIC_PID = QS.get("PROLIFIC_PID") || QS.get("prolific_pid") || "";
-const RATER = QS.get("rater") || "";               // named non-Prolific labeler tag
-const STUDY_ID = QS.get("STUDY_ID") || "";
-const SESSION_ID = QS.get("SESSION_ID") || "";
-const IS_PARTICIPANT = !!PROLIFIC_PID;             // only true Prolific runs redirect + lock
-const LABELER = PROLIFIC_PID || RATER;             // who owns these labels
+// Case-insensitive query lookup: CloudResearch docs disagree on whether the
+// participant param is "participantId" or "participantID", so accept any casing.
+const qsGet = (...names) => {
+  const want = names.map(n => n.toLowerCase());
+  for (const [k, v] of QS) if (want.includes(k.toLowerCase()) && v) return v;
+  return "";
+};
+
+const PROLIFIC_PID = qsGet("PROLIFIC_PID");
+const CR_PID = qsGet("participantId");             // CloudResearch Connect
+const RATER = QS.get("rater") || "";               // named non-panel labeler tag
+const STUDY_ID = qsGet("STUDY_ID", "projectId") || "";
+const SESSION_ID = qsGet("SESSION_ID", "assignmentId") || "";
+// Which panel sent them here; "" = self-directed (named labeler or preview).
+// `panel=` is set by us in the project URL so a participant still gets the
+// completion-code path even if the platform fails to append its id param.
+const PANEL_FLAG = qsGet("panel").toLowerCase();
+const PLATFORM = PROLIFIC_PID ? "prolific"
+               : CR_PID ? "cloudresearch"
+               : (PANEL_FLAG === "cloudresearch" || PANEL_FLAG === "prolific") ? PANEL_FLAG
+               : "";
+const IS_PARTICIPANT = !!PLATFORM;                 // only true panel runs redirect + lock
+// Fall back to a random id so an id-less panel run is still attributable and
+// still submits, rather than colliding on a shared blank labeler. Persist it —
+// LS (below) is derived from LABELER, so a fresh id per load would orphan
+// saved progress on every refresh.
+function anonId() {
+  const k = "c13_anon_" + DATASET + "_" + (BLOCK ?? "all");
+  let v = localStorage.getItem(k);
+  if (!v) { v = "anon_" + Math.random().toString(36).slice(2, 10); localStorage.setItem(k, v); }
+  return v;
+}
+const LABELER = PROLIFIC_PID || CR_PID || RATER || (PLATFORM ? anonId() : "");
 const LS = "c13_" + DATASET + "_" + (BLOCK ?? "all") + "_" + (LABELER || "preview");
 
 const $ = id => document.getElementById(id);
@@ -405,13 +432,30 @@ function overlay(html) {
   el.style.display = "flex";
   el.innerHTML = "<div style='max-width:520px'>" + html + "</div>";
 }
-function prolificReturn() {
-  return "https://app.prolific.com/submissions/complete?cc=" + encodeURIComponent(COMPLETION_CODE);
+// Prolific auto-registers completion via a return URL. CloudResearch Connect
+// projects created with projectCompletionType "CompletionCode" instead expect
+// the participant to paste the code back into Connect, so there is nothing to
+// redirect to — show the code and stop.
+const PANEL_NAME = { prolific: "Prolific", cloudresearch: "CloudResearch" }[PLATFORM] || "";
+function panelReturn() {
+  if (PLATFORM === "prolific")
+    return "https://app.prolific.com/submissions/complete?cc=" + encodeURIComponent(COMPLETION_CODE);
+  return "";
+}
+function codeBlock() {
+  return "<p>Completion code: <b style='font-size:20px;letter-spacing:1px'>" +
+    COMPLETION_CODE + "</b></p>";
+}
+function returnButton() {
+  const url = panelReturn();
+  if (!url) return "<p style='color:var(--mut);font-size:13px'>Copy the code above and paste it " +
+    "into " + (PANEL_NAME || "the study page") + " to submit your work.</p>";
+  return "<p><a href='" + url + "'><button class='primary' style='font-size:16px;padding:12px 22px'>" +
+    "Return to " + PANEL_NAME + " ▸</button></a></p>";
 }
 function showAlready() {
   overlay("<h2 style='color:var(--acc)'>You already submitted this block.</h2>" +
-    "<p>Completion code: <b>" + COMPLETION_CODE + "</b></p>" +
-    "<p><a href='" + prolificReturn() + "'><button class='primary'>Return to Prolific ▸</button></a></p>");
+    codeBlock() + returnButton());
 }
 async function submitAll() {
   const btn = $("export"); btn.disabled = true; btn.textContent = "Submitting…";
@@ -426,11 +470,8 @@ async function submitAll() {
     localStorage.setItem(LS + "_submitted", "1");
     if (IS_PARTICIPANT) {
       overlay("<h2 style='color:var(--acc)'>Thank you — your answers were submitted.</h2>" +
-        "<p>Click below to register completion on Prolific. If it doesn’t redirect, your " +
-        "completion code is <b>" + COMPLETION_CODE + "</b>.</p>" +
-        "<p><a href='" + prolificReturn() + "'><button class='primary' style='font-size:16px;padding:12px 22px'>" +
-        "Return to Prolific ▸</button></a></p>");
-      location.href = prolificReturn();
+        codeBlock() + returnButton());
+      if (panelReturn()) location.href = panelReturn();
     } else {
       overlay("<h2 style='color:var(--acc)'>✓ Saved to the database.</h2>" +
         "<p>All <b>" + rows.length + "</b> ratings for " +
@@ -438,7 +479,7 @@ async function submitAll() {
         " were written to Supabase — dataset <b>" + DATASET + "</b>, labeler <b>" +
         (LABELER || "preview") + "</b>.</p>" +
         "<p style='color:var(--mut);font-size:13px'>Your work is recorded; you can safely close this tab. " +
-        "(This was a non-Prolific run, so there’s no Prolific redirect.)</p>");
+        "(This was a direct run, not routed through a participant panel, so there’s no redirect.)</p>");
     }
   } catch (e) {
     btn.disabled = false; btn.textContent = "Submit ▸";
