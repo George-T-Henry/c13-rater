@@ -20,6 +20,26 @@ header .brand { font-size:15px; }
 header .prog { flex:1; min-width:180px; }
 .bar { height:9px; background:var(--chip); border-radius:5px; overflow:hidden; }
 .bar > div { height:100%; background:var(--acc); width:0%; transition:width .2s; }
+
+/* per-pair progress dots — one per question, red until reviewed, so a pair
+   skipped with the arrow keys stays visibly outstanding. Falls back to .bar
+   when there are too many pairs to dot (preview mode loads all of them). */
+.dots { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+/* Outstanding pairs are hollow red, reviewed ones solid green — the fill/outline
+   difference carries the same signal as the colour, so it survives red-green
+   colour blindness. */
+.dot { width:12px; height:12px; min-width:12px; padding:0; border-radius:50%;
+       border:2px solid var(--warn); background:transparent; cursor:pointer;
+       transition:background .15s, border-color .15s, transform .1s; }
+.dot.done { background:var(--acc); border-color:var(--acc); }
+.dot.cur { outline:2px solid var(--ink); outline-offset:2px; }
+.dot:hover { transform:scale(1.25); }
+.dot:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+.legend { display:inline; color:var(--mut); white-space:nowrap; }
+.legend i { width:10px; height:10px; border-radius:50%; display:inline-block;
+            margin-right:4px; vertical-align:-1px; box-sizing:border-box; }
+.legend .g { background:var(--acc); border:2px solid var(--acc); }
+.legend .r { background:transparent; border:2px solid var(--warn); }
 .count { font-variant-numeric:tabular-nums; font-size:13.5px; }
 .done { color:var(--acc); font-weight:700; }
 .pending { color:var(--mut); }
@@ -98,6 +118,8 @@ header .prog { flex:1; min-width:180px; }
 
 .navrow { display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap:wrap; }
 .navhint { flex:1; text-align:center; font-size:13px; color:var(--mut); min-width:120px; }
+.navhint.jump { color:var(--acc); font-weight:600; cursor:pointer;
+                text-decoration:underline dotted; text-underline-offset:3px; }
 /* keyboard-shortcut helper: subtle icon, details on hover/focus */
 .kbdhelp { position:relative; display:inline-flex; }
 .kbdhelp .kbdbtn { padding:6px 9px; font-size:15px; line-height:1; color:var(--mut); border-radius:8px; }
@@ -127,7 +149,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 <div id="app">
 <header>
   <div class="brand"><strong>Pair review</strong> <span class="tick" id="tick"></span></div>
-  <div class="prog"><div class="bar"><div id="pbar"></div></div></div>
+  <div class="prog">
+    <div class="dots" id="dots"></div>
+    <div class="bar" id="barwrap"><div id="pbar"></div></div>
+  </div>
   <div class="count" id="pcount"></div>
   <button id="export" class="primary" disabled title="review every pair first">Submit ▸</button>
   <button id="clear" class="ghost" title="wipe all saved answers">Reset</button>
@@ -138,7 +163,10 @@ button:disabled { opacity:.45; cursor:not-allowed; }
     <li><b>Read the concept</b> and its definition.</li>
     <li><b>Read both passages</b> fully (scroll to the end).</li>
     <li><b>Judge the pair:</b> valid, or something off?</li>
-    <li>When the bar is full, review with <b>←/→</b> and <b>Submit</b>.</li>
+    <li>Each dot up top is one pair
+        (<span class="legend"><i class="r"></i>to review</span>,
+        <span class="legend"><i class="g"></i>done</span>) — click one to jump to it.</li>
+    <li>When <b>every dot is green</b>, press <b>Submit</b>.</li>
   </ol>
 
   <div class="pairno" id="pairno"></div>
@@ -237,6 +265,10 @@ const LS = "c13_" + DATASET + "_" + (BLOCK ?? "all") + "_" + (LABELER || "previe
 const $ = id => document.getElementById(id);
 let pairs = [], defs = {}, store = {}, i = 0;
 let renderedKey = null, readPos = false, readNeg = false;
+let dotEls = [];
+// Above this many pairs a dot per pair stops being readable, so the plain
+// progress bar is used instead (preview mode loads the whole dataset).
+const DOT_LIMIT = 40;
 
 const cname = p => (p.concept || "").replace(/_/g, " ");
 
@@ -262,6 +294,7 @@ async function boot() {
     }
     store = JSON.parse(localStorage.getItem(LS) || "{}");
     for (let k = 0; k < pairs.length; k++) { if (!answeredRec(pairs[k])) { i = k; break; } }
+    buildDots();
     $("tick").textContent =
       (BLOCK !== null && BLOCK !== "" ? "block " + BLOCK + " · " : "preview · ") + "saves on this device";
     $("posPanel").addEventListener("scroll", () => onScroll("pos"));
@@ -381,15 +414,57 @@ function setDet(id, on) {
   const b = $(id); b.classList.toggle("on", on);
   b.querySelector(".box").textContent = on ? "☑" : "☐";
 }
+// One dot per pair, built once. Clicking a dot jumps straight to that pair so a
+// skipped one can be fixed without arrowing back through everything.
+function buildDots() {
+  const wrap = $("dots"), useDots = pairs.length <= DOT_LIMIT;
+  wrap.style.display = useDots ? "flex" : "none";
+  $("barwrap").style.display = useDots ? "none" : "block";
+  wrap.innerHTML = ""; dotEls = [];
+  if (!useDots) return;
+  pairs.forEach((p, k) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "dot";
+    b.addEventListener("click", () => goTo(k));
+    wrap.appendChild(b); dotEls.push(b);
+  });
+}
+function paintDots() {
+  dotEls.forEach((d, k) => {
+    const done = answeredRec(pairs[k]);
+    d.classList.toggle("done", done);
+    d.classList.toggle("cur", k === i);
+    const label = "Pair " + (k + 1) + " — " + (done ? "reviewed" : "NOT yet reviewed");
+    d.title = label;
+    d.setAttribute("aria-label", label + ", click to open");
+  });
+}
+// Next unreviewed pair after the current one, wrapping around; -1 if none left.
+function nextUnanswered() {
+  const n = pairs.length;
+  for (let k = 1; k <= n; k++) {
+    const idx = (i + k) % n;
+    if (!answeredRec(pairs[idx])) return idx;
+  }
+  return -1;
+}
 function paint() {
   const n = answered(), total = pairs.length, complete = n === total;
   $("pbar").style.width = (100 * n / total) + "%";
   $("pcount").innerHTML = `<span class="${complete ? 'done' : 'pending'}">${n} of ${total} reviewed</span>`;
   $("export").disabled = !complete;
   $("export").title = complete ? "submit your answers" : "review every pair first";
-  $("navhint").textContent = complete
-    ? "All reviewed — press Submit ▸ (top right) when ready"
-    : (total - n) + " left to review";
+  paintDots();
+  const nh = $("navhint");
+  if (complete) {
+    nh.textContent = "All reviewed — press Submit ▸ (top right) when ready";
+    nh.classList.remove("jump"); nh.onclick = null;
+  } else {
+    const left = total - n;
+    nh.textContent = left + (left === 1 ? " pair" : " pairs") + " still to review — jump to the next ▸";
+    nh.classList.add("jump");
+    nh.onclick = () => { const t = nextUnanswered(); if (t >= 0) goTo(t); };
+  }
 }
 
 // ===== Decisions =========================================================
@@ -407,7 +482,12 @@ function toggleDet(field) {
   nr[field] = nr[field] === 0 ? 1 : 0;
   save(current(), nr); render();
 }
-function move(d) { persistNotes(); i = Math.min(pairs.length - 1, Math.max(0, i + d)); render(); }
+function move(d) { goTo(i + d); }
+function goTo(idx) {
+  persistNotes();
+  i = Math.min(pairs.length - 1, Math.max(0, idx));
+  render();
+}
 function persistNotes() {
   const r = get(current());
   if (r) { r.notes = notesVal(); save(current(), r); }
